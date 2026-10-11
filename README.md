@@ -24,6 +24,8 @@ pnpm dev        # http://localhost:5180
 - Double-click empty canvas: new note. Drag from a card edge to another card: link. Select a link to label it.
 - **Paste note**: paste a Study OS page copied from Notion; it's split into fields.
 - A note's *Copy as Study OS markdown* sends it back the other way.
+- **Keyboard:** press `?` for the full list. `N S D B L` add cards, `E` cycles a note's size, `1`-`5` set confidence, `⌘D` duplicates, `⌘K` jumps to a board, `T` starts/pauses the timer, `⌘Z` / `⌘⇧Z` undo and redo.
+- Undo/redo covers everything on the boards (including deleted cards and whole resources) but lives in memory, so it resets when you reload.
 - Data is in `localStorage` (`atlas:v1`). **Export / Import** (sidebar footer) is the backup. Clearing browser data wipes boards, so export now and then.
 
 ## Running it locally (the setup in use)

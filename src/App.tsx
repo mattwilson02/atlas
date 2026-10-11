@@ -3,6 +3,7 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { Sidebar } from "./Sidebar";
 import { Canvas } from "./Canvas";
 import { Inspector } from "./Inspector";
+import { Help, Switcher, Toast } from "./Overlays";
 
 const KEY = "atlas:inspector-w";
 
@@ -39,6 +40,9 @@ export default function App() {
         <Canvas />
         <div className="resizer" onPointerDown={drag} title="Drag to resize panel" />
         <Inspector />
+        <Help />
+        <Switcher />
+        <Toast />
       </div>
     </ReactFlowProvider>
   );

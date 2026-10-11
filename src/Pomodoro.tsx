@@ -32,6 +32,13 @@ function chime() {
   });
 }
 
+/** Start/pause from a key press (a key press counts as the gesture browsers want before playing the chime). */
+export function toggleTimer() {
+  unlockAudio();
+  const s = usePomodoro.getState();
+  s.endsAt ? s.pause() : s.start();
+}
+
 function Stepper({ label, value, range, onChange }: { label: string; value: number; range: typeof FOCUS; onChange: (n: number) => void }) {
   const set = (n: number) => onChange(Math.min(range.max, Math.max(range.min, n)));
   return (

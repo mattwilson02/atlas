@@ -58,6 +58,8 @@ type State = {
   promoteScratch: (id: string) => void;
   importNoteMarkdown: (md: string, position: { x: number; y: number }, title?: string) => void;
   createLinkedBoard: (nodeId: string) => void;
+  duplicateSelected: () => void;
+  deselectAll: () => void;
 
   exportJson: () => string;
   importJson: (json: string) => void;
@@ -187,6 +189,22 @@ export const useAtlas = create<State>()(
         importNoteMarkdown: (md, position, title) => {
           get().addNode("note", position, { ...parseNote(md, title?.trim() || "Imported note") });
         },
+        duplicateSelected: () =>
+          patchActive((b) => {
+            const picked = b.nodes.filter((n) => n.selected);
+            if (!picked.length) return b;
+            const copies = picked.map((n) => {
+              const { measured: _drop, ...rest } = structuredClone(n) as AtlasNode & { measured?: unknown };
+              return { ...rest, id: uid("n"), position: { x: n.position.x + 36, y: n.position.y + 36 }, selected: true, dragging: false } as AtlasNode;
+            });
+            return { ...b, nodes: [...b.nodes.map((n) => ({ ...n, selected: false })), ...copies] };
+          }),
+        deselectAll: () =>
+          patchActive((b) => ({
+            ...b,
+            nodes: b.nodes.map((n) => (n.selected ? { ...n, selected: false } : n)),
+            edges: b.edges.map((e) => (e.selected ? { ...e, selected: false } : e)),
+          })),
         createLinkedBoard: (nodeId) => {
           const s = get();
           const active = s.boards.find((b) => b.id === s.activeBoardId);

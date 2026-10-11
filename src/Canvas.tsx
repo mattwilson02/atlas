@@ -10,9 +10,12 @@ import {
   useReactFlow,
   type NodeTypes,
 } from "@xyflow/react";
-import { ArrowLeft, ClipboardPaste, GitBranch, Heading, NotebookPen, Share2, StickyNote } from "lucide-react";
+import { ArrowLeft, ClipboardPaste, Keyboard, Redo2, Undo2, GitBranch, Heading, NotebookPen, Share2, StickyNote } from "lucide-react";
 import { useAtlas } from "./store";
 import { Dialog } from "./Dialog";
+import { useUi } from "./ui";
+import { redo, undo, useHistory } from "./history";
+import { keyFor, useShortcuts, type ShortcutId } from "./shortcuts";
 import { NoteCard } from "./nodes/NoteNode";
 import { ScratchCard } from "./nodes/ScratchNode";
 import { DiagramCard } from "./nodes/DiagramNode";
@@ -48,7 +51,9 @@ export function Canvas() {
   const folder = folders.find((f) => f.id === board?.folderId);
   const { screenToFlowPosition, fitView } = useReactFlow();
   const wrap = useRef<HTMLDivElement>(null);
-  const [pasting, setPasting] = useState(false);
+  const { canUndo, canRedo } = useHistory();
+  const pasting = useUi((s) => s.pasting);
+  const setPasting = (v: boolean) => useUi.setState({ pasting: v });
   const [md, setMd] = useState("");
   const [mdTitle, setMdTitle] = useState("");
 
@@ -60,6 +65,8 @@ export function Canvas() {
       y: (r ? r.top + r.height / 2 : window.innerHeight / 2) + jitter(),
     });
   }, [screenToFlowPosition]);
+
+  useShortcuts({ centre, fit: () => fitView({ padding: 0.2, duration: 300, maxZoom: 1 }) });
 
   if (!board) {
     return (
@@ -89,12 +96,21 @@ export function Canvas() {
         </div>
         <div className="tools">
           {TOOLS.map(({ kind, label, icon: Icon }) => (
-            <button key={kind} className="tool" title={label} onClick={() => addNode(kind, centre())}>
+            <button key={kind} className="tool" title={`${label} (${keyFor(`add-${kind}` as ShortcutId)})`} onClick={() => addNode(kind, centre())}>
               <Icon size={15} /> <span className="lbl">{label}</span>
             </button>
           ))}
-          <button className="tool" onClick={() => setPasting(true)} title="Paste a Study OS note from Notion">
+          <button className="tool" onClick={() => setPasting(true)} title={`Paste a Study OS note from Notion (${keyFor("paste")})`}>
             <ClipboardPaste size={15} /> <span className="lbl">Paste note</span>
+          </button>
+          <button className="tool" title={`Undo (${keyFor("undo")})`} aria-label="Undo" disabled={!canUndo} onClick={() => void undo()}>
+            <Undo2 size={15} />
+          </button>
+          <button className="tool" title={`Redo (${keyFor("redo")})`} aria-label="Redo" disabled={!canRedo} onClick={() => void redo()}>
+            <Redo2 size={15} />
+          </button>
+          <button className="tool" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" onClick={() => useUi.setState({ help: true })}>
+            <Keyboard size={15} />
           </button>
         </div>
       </header>
