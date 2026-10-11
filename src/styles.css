@@ -64,7 +64,7 @@ button.primary:disabled { opacity: .4; cursor: not-allowed; }
 /* ---------- canvas ---------- */
 .canvas { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .canvas.empty { align-items: center; justify-content: center; color: var(--muted); }
-.topbar { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.topbar { container: topbar / inline-size; display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg); }
 .crumbs { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .board-title { background: none; border: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; padding: 0; width: 100%; }
 .board-title:focus-visible { outline-offset: 4px; border-radius: 4px; }
@@ -146,7 +146,7 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 
 .react-flow__minimap { width: 150px !important; height: 100px !important; }
 .crumbs { min-width: 120px; }
-@media (max-width: 1500px) { .tool .lbl { display: none; } .tool { padding: 8px 10px; } }
+@container topbar (max-width: 1500px) { .tool .lbl { display: none; } .tool { padding: 8px 10px; } }
 
 /* ---------- roomier note cards ---------- */
 .note { width: 340px; padding: 18px 20px 20px; }
@@ -253,3 +253,9 @@ kbd { font: 600 11.5px/1 "Inter Variable", Inter, system-ui, sans-serif; letter-
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 button.tool:disabled { opacity: .35; cursor: default; }
 button.tool:disabled:hover { background: var(--card); border-color: var(--border); }
+
+/* title row: never wrap the resource name, give the board name room */
+.crumbs { min-width: 260px; }
+.crumbs .eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.board-title { text-overflow: ellipsis; }
+.tools { flex-shrink: 0; }
