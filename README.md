@@ -54,13 +54,6 @@ so edits made while the service was down are pushed up when it returns. Last wri
 Boards are stored per browser *and per address*: `localhost:5181` has its own boards, separate from the dev server
 on `:5180`. Use Export / Import to move boards across.
 
-## Deploying to Netlify (not used; kept for later)
-
-A Netlify site of its own. Import this repo, and set
-`ATLAS_PASSWORD` and `ATLAS_SECRET` (`openssl rand -hex 32`) as environment variables. `netlify/edge-functions/gate.ts`
-puts a password login in front of every request and serves nothing if either variable is missing. Notes still live in each
-browser, not on the server. Use a long random password: wrong guesses are slowed, not locked out.
-
 ## Not built yet
 
 Sync between devices, recall/quiz mode over the Recall questions, search, auto-layout, image nodes, Notion sync, cloud persistence.
