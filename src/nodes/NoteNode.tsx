@@ -1,6 +1,7 @@
 import type { NodeProps } from "@xyflow/react";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { Handles } from "./Handles";
+import { Markdown } from "../MarkdownText";
 import { useAtlas } from "../store";
 import type { NoteNode as T } from "../types";
 
@@ -9,7 +10,7 @@ function Section({ label, text, tone }: { label: string; text: string; tone?: "g
   return (
     <section className={`sec ${tone ?? ""}`}>
       <b>{label}</b>
-      <p>{text}</p>
+      <Markdown text={text} />
     </section>
   );
 }
@@ -52,7 +53,7 @@ export function NoteCard({ id, data, selected }: NodeProps<T>) {
 
       {size === "summary" && (
         <>
-          {data.sentence && <p className="sentence">{data.sentence}</p>}
+          {data.sentence && <Markdown className="sentence" text={data.sentence} />}
           {(data.gains || data.costs) && (
             <div className="tradeoffs">
               <Section label="Gains" text={data.gains} tone="gain" />
@@ -65,7 +66,7 @@ export function NoteCard({ id, data, selected }: NodeProps<T>) {
 
       {size === "full" && (
         <div className="full-body">
-          {data.sentence && <p className="sentence">{data.sentence}</p>}
+          {data.sentence && <Markdown className="sentence" text={data.sentence} />}
           <Section label="Problem it solves" text={data.problem} />
           <Section label="How it works" text={data.how} />
           <div className="tradeoffs">

@@ -1,10 +1,7 @@
 import { emptyNote, type NoteData } from "./types";
 
-const clean = (s: string) =>
-  s
-    .replace(/<mention-page[^>]*\/>/g, "")
-    .replace(/\*\*/g, "")
-    .trim();
+const stripMentions = (s: string) => s.replace(/<mention-page[^>]*\/>/g, "");
+const clean = (s: string) => stripMentions(s).replace(/\*\*/g, "").trim();
 
 // A line like "Gains: foo" / "**Gains:** foo" -> "foo". Returns null if no match.
 function labelled(text: string, label: string): string | null {
@@ -48,7 +45,7 @@ export function parseNote(text: string, fallbackTitle = ""): NoteData {
 
   for (const [heading, body] of Object.entries(sections)) {
     const key = HEADINGS[heading];
-    const value = clean(body);
+    const value = stripMentions(body).trim(); // keeps markdown (bold, lists) intact
     if (!key || !value) continue;
     if (key === "tradeoffs") {
       note.gains = labelled(body, "Gains") ?? "";

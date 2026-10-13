@@ -164,12 +164,12 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--a
 .note .tradeoffs { gap: 8px; margin-top: 0; }
 .sec { padding: 0; }
 .sec b { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); margin-bottom: 4px; }
-.sec p { font-size: 12.5px; line-height: 1.6; color: #cfcfd2; white-space: pre-wrap; }
+.sec .md { font-size: 12.5px; line-height: 1.6; color: #cfcfd2; }
 .tradeoffs .sec { padding: 10px 12px; border-radius: 10px; }
 .tradeoffs .sec.gain { background: color-mix(in srgb, var(--green) 9%, transparent); } .tradeoffs .sec.gain b { color: var(--green); }
 .tradeoffs .sec.cost { background: color-mix(in srgb, var(--red) 9%, transparent); } .tradeoffs .sec.cost b { color: var(--red); }
-.tradeoffs > .sec p { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-.size-full .tradeoffs > .sec p { -webkit-line-clamp: unset; display: block; }
+.tradeoffs > .sec .md { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.size-full .tradeoffs > .sec .md { -webkit-line-clamp: unset; display: block; }
 .sec.warn b { color: var(--amber); }
 .full-body { display: flex; flex-direction: column; gap: 16px; margin-top: 2px; }
 .note .node-foot { margin-top: 12px; }
@@ -259,3 +259,21 @@ button.tool:disabled:hover { background: var(--card); border-color: var(--border
 .crumbs .eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .board-title { text-overflow: ellipsis; }
 .tools { flex-shrink: 0; }
+
+/* rendered markdown */
+.md { font-size: inherit; line-height: 1.6; overflow-wrap: anywhere; }
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+.md p { margin: 0 0 8px; }
+.md h3, .md h4, .md h5 { margin: 10px 0 4px; font-size: 1em; line-height: 1.35; }
+.md h3 { font-size: 1.1em; }
+.md ul, .md ol { margin: 0 0 8px; padding-left: 20px; }
+.md li { margin: 2px 0; }
+.md li > ul, .md li > ol { margin: 2px 0 0; }
+.md strong { font-weight: 650; color: #fff; }
+.md code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 4px; }
+.md a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.note .sentence.md { display: block; -webkit-line-clamp: unset; }
+.md-preview { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 13.5px; line-height: 1.6; cursor: text; min-height: 44px; }
+.md-preview:hover { border-color: #3a3a40; }
+.md-preview:focus { outline: none; border-color: var(--accent); }

@@ -1,8 +1,21 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { Markdown } from "./MarkdownText";
 
 /** Textarea that grows with its content (up to 70vh); drag the corner to go bigger still. */
-export function Grow({ value, onChange, min = 2 }: { value: string; onChange: (v: string) => void; min?: number }) {
+export function Grow({
+  value,
+  onChange,
+  min = 2,
+  autoFocus,
+  onBlur,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  min?: number;
+  autoFocus?: boolean;
+  onBlur?: () => void;
+}) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const fit = () => {
     const el = ref.current;
@@ -27,13 +40,31 @@ export function Grow({ value, onChange, min = 2 }: { value: string; onChange: (v
     return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return <textarea ref={ref} rows={min} value={value} onChange={(e) => onChange(e.target.value)} />;
+  useEffect(() => {
+    const el = ref.current;
+    if (autoFocus && el) {
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    }
+  }, [autoFocus]);
+  return (
+    <textarea
+      ref={ref}
+      rows={min}
+      value={value}
+      placeholder="Markdown supported"
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
+      onKeyDown={(e) => e.key === "Escape" && e.currentTarget.blur()}
+    />
+  );
 }
 
 const closed = new Set<string>(); // remembered for the session so collapsing survives selection changes
 
 export function Field({ label, value, onChange, rows = 2 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
   const [shut, setShut] = useState(closed.has(label));
+  const [editing, setEditing] = useState(false);
   const toggle = () => {
     shut ? closed.delete(label) : closed.add(label);
     setShut(!shut);
@@ -45,7 +76,21 @@ export function Field({ label, value, onChange, rows = 2 }: { label: string; val
         <span className="eyebrow">{label}</span>
         {shut && value && <span className="peek">{value.slice(0, 40)}</span>}
       </button>
-      {!shut && <Grow value={value} onChange={onChange} min={rows} />}
+      {!shut &&
+        (editing || !value.trim() ? (
+          <Grow value={value} onChange={onChange} min={rows} autoFocus={editing} onBlur={() => setEditing(false)} />
+        ) : (
+          <div
+            className="md-preview"
+            tabIndex={0}
+            role="textbox"
+            aria-label={`${label} (click to edit)`}
+            onClick={(e) => !(e.target as HTMLElement).closest("a") && setEditing(true)}
+            onKeyDown={(e) => e.key === "Enter" && setEditing(true)}
+          >
+            <Markdown text={value} />
+          </div>
+        ))}
     </div>
   );
 }
