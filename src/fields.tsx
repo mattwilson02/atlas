@@ -65,11 +65,27 @@ export function Grow({
 
 const closed = new Set<string>(); // remembered for the session so collapsing survives selection changes
 
-export function Field({ label, value, onChange, rows = 2 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
-  const [shut, setShut] = useState(closed.has(label));
+/**
+ * `extra` fields belong to the full card: they start collapsed while empty, and open by default once filled.
+ * Their state is per card (the form is keyed by node), not remembered across cards.
+ */
+export function Field({
+  label,
+  value,
+  onChange,
+  rows = 2,
+  extra,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+  extra?: boolean;
+}) {
+  const [shut, setShut] = useState(extra ? !value.trim() : closed.has(label));
   const [editing, setEditing] = useState(false);
   const toggle = () => {
-    shut ? closed.delete(label) : closed.add(label);
+    if (!extra) shut ? closed.delete(label) : closed.add(label);
     setShut(!shut);
   };
   return (

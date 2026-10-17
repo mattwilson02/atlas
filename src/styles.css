@@ -277,3 +277,28 @@ button.tool:disabled:hover { background: var(--card); border-color: var(--border
 .md-preview { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 13.5px; line-height: 1.6; cursor: text; min-height: 44px; }
 .md-preview:hover { border-color: #3a3a40; }
 .md-preview:focus { outline: none; border-color: var(--accent); }
+
+/* distinction card: X vs Y */
+.distinction { border-top-color: var(--cyan); }
+.distinction .sentence { font-style: italic; }
+.versus { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.versus .sec { padding: 10px 12px; border-radius: 10px; }
+.versus .sec .md { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.size-full .versus .sec .md { -webkit-line-clamp: unset; display: block; }
+.versus .side-x { background: color-mix(in srgb, var(--accent) 10%, transparent); } .versus .side-x b { color: var(--accent); }
+.versus .side-y { background: color-mix(in srgb, var(--cyan) 10%, transparent); } .versus .side-y b { color: var(--cyan); }
+.distinction.size-full { margin-top: 0; }
+.full-body { margin-top: 14px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* distinction card: X vs Y */
+.distinction { border-top-color: var(--cyan); }
+.distinction .sentence { font-style: italic; }
+.versus { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.versus .sec { padding: 10px 12px; border-radius: 10px; }
+.versus .sec .md { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.size-full .versus .sec .md { -webkit-line-clamp: unset; display: block; }
+.versus .side-x { background: color-mix(in srgb, var(--accent) 10%, transparent); } .versus .side-x b { color: var(--accent); }
+.versus .side-y { background: color-mix(in srgb, var(--cyan) 10%, transparent); } .versus .side-y b { color: var(--cyan); }
+.distinction .full-body { margin-top: 14px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

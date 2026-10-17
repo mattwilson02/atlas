@@ -37,6 +37,7 @@ export type Shortcut = {
 // One list drives both the key handler and the cheat sheet, so they cannot drift apart.
 export const SHORTCUTS: Shortcut[] = [
   { id: "add-note", combo: "n", label: "New note", group: "Add" },
+  { id: "add-distinction", combo: "v", label: "New distinction (X vs Y)", group: "Add" },
   { id: "add-scratch", combo: "s", label: "New scratch", group: "Add" },
   { id: "add-diagram", combo: "d", label: "New diagram", group: "Add" },
   { id: "add-board", combo: "b", label: "New sub-board link", group: "Add" },
@@ -119,6 +120,7 @@ export function useShortcuts(ctx: Ctx) {
 
     const run: Record<ShortcutId, () => void> = {
       "add-note": () => useAtlas.getState().addNode("note", ref.current.centre()),
+      "add-distinction": () => useAtlas.getState().addNode("distinction", ref.current.centre()),
       "add-scratch": () => useAtlas.getState().addNode("scratch", ref.current.centre()),
       "add-diagram": () => useAtlas.getState().addNode("diagram", ref.current.centre()),
       "add-board": () => useAtlas.getState().addNode("board", ref.current.centre()),
@@ -129,7 +131,7 @@ export function useShortcuts(ctx: Ctx) {
       size: () => {
         const next = { summary: "full", full: "compact", compact: "summary" } as const;
         for (const n of selected()) {
-          if (n.type === "note") useAtlas.getState().updateNodeData(n.id, { size: next[n.data.size ?? "summary"] });
+          if (n.type === "note" || n.type === "distinction") useAtlas.getState().updateNodeData(n.id, { size: next[n.data.size ?? "summary"] });
         }
       },
       open: () => {
@@ -154,7 +156,7 @@ export function useShortcuts(ctx: Ctx) {
     };
 
     function setConfidence(n: number) {
-      for (const node of selected()) if (node.type === "note") useAtlas.getState().updateNodeData(node.id, { confidence: n });
+      for (const node of selected()) if (node.type === "note" || node.type === "distinction") useAtlas.getState().updateNodeData(node.id, { confidence: n });
     }
 
     const onKey = (e: KeyboardEvent) => {

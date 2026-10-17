@@ -20,6 +20,7 @@ const fixture = {
     nodes: [
       note("n1", "Operational Systems (OLTP)", { confidence: 2, unclear: "tradeoffs tbd" }),
       note("n2", "Analytical Systems (OLAP)", { confidence: 5 }),
+      { id: "x1", type: "distinction", position: { x: 0, y: 0 }, data: { xName: "System of record", yName: "Derived data", question: "Was this first written here, or computed from elsewhere?", x: "source of truth", y: "rebuildable cache", why: "reads vs correctness", together: "Postgres plus a Redis cache", recall: "Which one do you back up?", confidence: 4 } },
       { id: "d1", type: "diagram", position: { x: 0, y: 0 }, data: { title: "Flow", code: "flowchart LR\n a-->b", model: { dir: "LR", nodes: [{ id: "a", label: "App", group: "" }, { id: "b", label: "DB", group: "" }], edges: [{ id: "e", from: "a", to: "b", label: "queries", arrow: "one" }] } } },
       { id: "s1", type: "scratch", position: { x: 0, y: 0 }, data: { text: "warehouse freshness?" } },
     ],
@@ -46,7 +47,7 @@ check("no tool name suggests writing", !tools.some((t) => /create|update|delete|
 check("instructions forbid rewriting the notes", /Do not write, rewrite/.test(client.getInstructions() ?? ""));
 
 let r = await call("list_resources");
-check("list_resources", /Designing Data-Intensive Applications \[book\] · 1 board\(s\), 2 note\(s\)/.test(r.text), r.text);
+check("list_resources", /Designing Data-Intensive Applications \[book\] · 1 board\(s\), 3 note\(s\)/.test(r.text), r.text);
 r = await call("list_notes", { max_confidence: 2 });
 check("list_notes filters by confidence", /OLTP/.test(r.text) && !/OLAP/.test(r.text) && /open question/.test(r.text), r.text);
 r = await call("list_notes", { has_unclear: true });
@@ -57,6 +58,10 @@ r = await call("get_note", { note: "n2" });
 check("get_note by id shows the reverse link", /← Operational Systems/.test(r.text), r.text);
 r = await call("get_note", { note: "Systems" });
 check("ambiguous title is refused with candidates, not guessed", r.err && /matches 2/.test(r.text) && /n1/.test(r.text), r.text);
+r = await call("get_note", { note: "system of record" });
+check("get_note finds a distinction and names its sides", /# System of record vs Derived data/.test(r.text) && /## System of record\nsource of truth/.test(r.text) && /## The question that separates them/.test(r.text), r.text);
+r = await call("search", { query: "redis" });
+check("search reaches distinction fields", /System of record vs Derived data.*Where you see both together/.test(r.text), r.text);
 r = await call("get_note", { note: "nonexistent" });
 check("unknown note is a clear error", r.err && /Nothing matches/.test(r.text), r.text);
 r = await call("get_board", { board: "ch 1" });

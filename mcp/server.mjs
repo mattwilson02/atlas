@@ -58,6 +58,26 @@ const NOTE_FIELDS = [
   ["unclear", "Still unclear"],
 ];
 
+const DISTINCTION_FIELDS = [
+  ["question", "The question that separates them"],
+  ["x", null],
+  ["y", null],
+  ["why", "Why both exist"],
+  ["together", "Where you see both together"],
+  ["recall", "Recall question"],
+];
+
+const distinctionTitle = (d) =>
+  (d.xName ?? "").trim() || (d.yName ?? "").trim() ? `${(d.xName ?? "").trim() || "?"} vs ${(d.yName ?? "").trim() || "?"}` : "(untitled distinction)";
+
+/** [key, label] pairs for a node; a distinction's X and Y sections are named after the two sides. */
+const fieldsOf = (n) =>
+  n.type === "distinction"
+    ? DISTINCTION_FIELDS.map(([k, l]) => [k, l ?? ((k === "x" ? n.data.xName : n.data.yName) || k.toUpperCase())])
+    : NOTE_FIELDS;
+
+const isNote = (n) => n.type === "note" || n.type === "distinction";
+
 /** Flatten to nodes that know where they live. */
 function index(d) {
   const folder = new Map(d.folders.map((f) => [f.id, f]));
@@ -69,7 +89,7 @@ function index(d) {
 }
 
 const titleOf = (n) =>
-  n.type === "note" ? n.data.title || "(untitled note)" : n.type === "scratch" ? `Scratch: ${(n.data.text ?? "").split("\n")[0].slice(0, 60)}` : n.data.title ?? n.data.text ?? n.type;
+  n.type === "distinction" ? distinctionTitle(n.data) : n.type === "note" ? n.data.title || "(untitled note)" : n.type === "scratch" ? `Scratch: ${(n.data.text ?? "").split("\n")[0].slice(0, 60)}` : n.data.title ?? n.data.text ?? n.type;
 
 const where = (x) => `${x.resource?.name ?? "?"} › ${x.board.name}`;
 
@@ -113,7 +133,7 @@ function renderNote(x, d, ix) {
   const { node: n } = x;
   const out = [`# ${titleOf(n)}`, `id: ${n.id} · confidence ${n.data.confidence}/5 · ${where(x)}`, ""];
   if (n.data.confidence == null) out.splice(1, 1, `id: ${n.id} · ${where(x)}`);
-  for (const [key, label] of NOTE_FIELDS) {
+  for (const [key, label] of fieldsOf(n)) {
     const v = (n.data[key] ?? "").trim();
     out.push(`## ${label}`, v || "(empty)", "");
   }
@@ -165,7 +185,7 @@ server.registerTool(
     return d.folders
       .map((f) => {
         const bs = d.boards.filter((b) => b.folderId === f.id);
-        const notes = ix.nodes.filter((x) => x.resource?.id === f.id && x.node.type === "note").length;
+        const notes = ix.nodes.filter((x) => x.resource?.id === f.id && isNote(x.node)).length;
         return `- ${f.name} [${f.kind}] · ${bs.length} board(s), ${notes} note(s)`;
       })
       .join("\n");
@@ -213,7 +233,7 @@ server.registerTool(
     const boardIds = new Set((board ? [findBoard(d, board)] : resourceBoards(d, resource)).map((b) => b.id));
     const rows = ix.nodes.filter(
       (x) =>
-        x.node.type === "note" &&
+        isNote(x.node) &&
         boardIds.has(x.board.id) &&
         (max_confidence == null || x.node.data.confidence <= max_confidence) &&
         (has_unclear == null || !!(x.node.data.unclear ?? "").trim() === has_unclear),
@@ -229,14 +249,14 @@ server.registerTool(
   "get_note",
   {
     title: "Get a note",
-    description: "One atomic note, every field verbatim in the Study OS template, plus what it is linked to on its board (with the user's link labels). Reference by id, exact title, or a unique part of the title.",
+    description: "One atomic note or distinction (X vs Y) card, every field verbatim, plus what it is linked to on its board (with the user's link labels). Reference by id, exact title, or a unique part of the title.",
     inputSchema: { note: z.string().describe("Note id or title") },
     annotations: ro,
   },
   wrap(async ({ note }) => {
     const d = await load();
     const ix = index(d);
-    return renderNote(findNode(ix, note, ["note"]), d, ix);
+    return renderNote(findNode(ix, note, ["note", "distinction"]), d, ix);
   }),
 );
 
@@ -256,7 +276,7 @@ server.registerTool(
     const parts = [`# Board: ${b.name}`, `resource: ${f?.name ?? "?"} · id: ${b.id}`, ""];
     for (const n of b.nodes) {
       const x = ix.byId.get(n.id);
-      if (n.type === "note") parts.push(renderNote(x, d, ix));
+      if (isNote(n)) parts.push(renderNote(x, d, ix));
       else if (n.type === "diagram") parts.push(renderDiagram(x));
       else if (n.type === "scratch") parts.push(`# Scratch [${n.id}]\n${(n.data.text ?? "").trim() || "(empty)"}`);
       else if (n.type === "label") parts.push(`# Label [${n.id}]: ${n.data.text}`);
@@ -302,7 +322,9 @@ server.registerTool(
     for (const x of ix.nodes) {
       const n = x.node;
       const fields =
-        n.type === "note"
+        n.type === "distinction"
+          ? [["title", distinctionTitle(n.data)], ...fieldsOf(n).map(([k, l]) => [l, n.data[k]])]
+          : n.type === "note"
           ? [["title", n.data.title], ...NOTE_FIELDS.map(([k, l]) => [l, n.data[k]])]
           : n.type === "scratch"
             ? [["scratch", n.data.text]]

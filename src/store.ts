@@ -13,6 +13,7 @@ import { noteFromScratch, parseNote } from "./markdown";
 import { seedBoards, seedFolders } from "./seed";
 import {
   emptyNote,
+  emptyDistinction,
   type AtlasNode,
   type Board,
   type Folder,
@@ -24,6 +25,7 @@ const uid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 9)}`;
 
 const defaults: Record<NodeKind, () => Record<string, unknown>> = {
   note: () => ({ ...emptyNote() }),
+  distinction: () => ({ ...emptyDistinction() }),
   scratch: () => ({ text: "" }),
   diagram: () => ({ title: "Diagram", code: "flowchart LR\n  A[Start] --> B[End]" }),
   label: () => ({ text: "Section" }),
