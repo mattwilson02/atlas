@@ -3,8 +3,8 @@ import { Copy, Sparkles, Wand2 } from "lucide-react";
 import { Field } from "./fields";
 import { DiagramPanel } from "./DiagramPanel";
 import { useAtlas } from "./store";
-import { noteToMarkdown } from "./markdown";
-import type { AtlasNode, NoteData } from "./types";
+import { distinctionToMarkdown, noteToMarkdown } from "./markdown";
+import type { AtlasNode, DistinctionData, NoteData } from "./types";
 
 function NoteForm({ node }: { node: Extract<AtlasNode, { type: "note" }> }) {
   const update = useAtlas((s) => s.updateNodeData);
@@ -28,15 +28,15 @@ function NoteForm({ node }: { node: Extract<AtlasNode, { type: "note" }> }) {
         </div>
       </div>
       <Field label="In one sentence" value={d.sentence} onChange={set("sentence")} />
-      <Field label="Problem it solves" value={d.problem} onChange={set("problem")} />
-      <Field label="How it works" value={d.how} onChange={set("how")} rows={3} />
+      <Field label="Problem it solves" value={d.problem} onChange={set("problem")} extra />
+      <Field label="How it works" value={d.how} onChange={set("how")} rows={3} extra />
       <Field label="Gains" value={d.gains} onChange={set("gains")} />
       <Field label="Costs" value={d.costs} onChange={set("costs")} />
-      <Field label="Use when" value={d.useWhen} onChange={set("useWhen")} />
-      <Field label="Avoid when" value={d.avoidWhen} onChange={set("avoidWhen")} />
-      <Field label="Real examples" value={d.example} onChange={set("example")} />
-      <Field label="Recall questions" value={d.recall} onChange={set("recall")} rows={4} />
-      <Field label="Still unclear" value={d.unclear} onChange={set("unclear")} />
+      <Field label="Use when" value={d.useWhen} onChange={set("useWhen")} extra />
+      <Field label="Avoid when" value={d.avoidWhen} onChange={set("avoidWhen")} extra />
+      <Field label="Real examples" value={d.example} onChange={set("example")} extra />
+      <Field label="Recall questions" value={d.recall} onChange={set("recall")} rows={4} extra />
+      <Field label="Still unclear" value={d.unclear} onChange={set("unclear")} extra />
       <button
         className="ghost"
         onClick={async () => {
@@ -46,6 +46,60 @@ function NoteForm({ node }: { node: Extract<AtlasNode, { type: "note" }> }) {
         }}
       >
         <Copy size={14} /> {copied ? "Copied" : "Copy as Study OS markdown"}
+      </button>
+    </>
+  );
+}
+
+function Confidence({ value, onPick }: { value: number; onPick: (n: number) => void }) {
+  return (
+    <div className="field">
+      <span className="eyebrow">Confidence</span>
+      <div className="seg">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <button key={i} className={value === i ? "on" : ""} onClick={() => onPick(i)}>
+            {i}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DistinctionForm({ node }: { node: Extract<AtlasNode, { type: "distinction" }> }) {
+  const update = useAtlas((s) => s.updateNodeData);
+  const [copied, setCopied] = useState(false);
+  const d = node.data;
+  const set = (k: keyof DistinctionData) => (v: string) => update(node.id, { [k]: v });
+  return (
+    <>
+      <div className="eyebrow">Distinction</div>
+      <div className="pair">
+        <label className="field">
+          <span className="eyebrow">X</span>
+          <input value={d.xName} placeholder="e.g. System of record" onChange={(e) => set("xName")(e.target.value)} />
+        </label>
+        <label className="field">
+          <span className="eyebrow">Y</span>
+          <input value={d.yName} placeholder="e.g. Derived data" onChange={(e) => set("yName")(e.target.value)} />
+        </label>
+      </div>
+      <Confidence value={d.confidence} onPick={(n) => update(node.id, { confidence: n })} />
+      <Field label="The question that separates them" value={d.question} onChange={set("question")} rows={3} />
+      <Field label={d.xName.trim() || "X"} value={d.x} onChange={set("x")} />
+      <Field label={d.yName.trim() || "Y"} value={d.y} onChange={set("y")} />
+      <Field label="Why both exist" value={d.why} onChange={set("why")} rows={3} extra />
+      <Field label="Where you see both together" value={d.together} onChange={set("together")} extra />
+      <Field label="Recall question" value={d.recall} onChange={set("recall")} rows={3} extra />
+      <button
+        className="ghost"
+        onClick={async () => {
+          await navigator.clipboard.writeText(distinctionToMarkdown(d));
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        }}
+      >
+        <Copy size={14} /> {copied ? "Copied" : "Copy as markdown"}
       </button>
     </>
   );
@@ -96,7 +150,8 @@ export function Inspector() {
         </>
       )}
 
-      {node?.type === "note" && <NoteForm node={node} />}
+      {node?.type === "note" && <NoteForm key={node.id} node={node} />}
+      {node?.type === "distinction" && <DistinctionForm key={node.id} node={node} />}
 
       {node?.type === "scratch" && (
         <>

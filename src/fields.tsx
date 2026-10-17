@@ -9,12 +9,14 @@ export function Grow({
   min = 2,
   autoFocus,
   onBlur,
+  onFocus,
 }: {
   value: string;
   onChange: (v: string) => void;
   min?: number;
   autoFocus?: boolean;
   onBlur?: () => void;
+  onFocus?: () => void;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const fit = () => {
@@ -54,6 +56,7 @@ export function Grow({
       value={value}
       placeholder="Markdown supported"
       onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
       onBlur={onBlur}
       onKeyDown={(e) => e.key === "Escape" && e.currentTarget.blur()}
     />
@@ -62,11 +65,27 @@ export function Grow({
 
 const closed = new Set<string>(); // remembered for the session so collapsing survives selection changes
 
-export function Field({ label, value, onChange, rows = 2 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
-  const [shut, setShut] = useState(closed.has(label));
+/**
+ * `extra` fields belong to the full card: they start collapsed while empty, and open by default once filled.
+ * Their state is per card (the form is keyed by node), not remembered across cards.
+ */
+export function Field({
+  label,
+  value,
+  onChange,
+  rows = 2,
+  extra,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+  extra?: boolean;
+}) {
+  const [shut, setShut] = useState(extra ? !value.trim() : closed.has(label));
   const [editing, setEditing] = useState(false);
   const toggle = () => {
-    shut ? closed.delete(label) : closed.add(label);
+    if (!extra) shut ? closed.delete(label) : closed.add(label);
     setShut(!shut);
   };
   return (
@@ -78,7 +97,7 @@ export function Field({ label, value, onChange, rows = 2 }: { label: string; val
       </button>
       {!shut &&
         (editing || !value.trim() ? (
-          <Grow value={value} onChange={onChange} min={rows} autoFocus={editing} onBlur={() => setEditing(false)} />
+          <Grow value={value} onChange={onChange} min={rows} autoFocus={editing} onFocus={() => setEditing(true)} onBlur={() => setEditing(false)} />
         ) : (
           <div
             className="md-preview"

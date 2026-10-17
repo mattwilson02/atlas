@@ -10,13 +10,14 @@ import {
   useReactFlow,
   type NodeTypes,
 } from "@xyflow/react";
-import { ArrowLeft, ClipboardPaste, Keyboard, Redo2, Undo2, GitBranch, Heading, NotebookPen, Share2, StickyNote } from "lucide-react";
+import { ArrowLeft, ClipboardPaste, Keyboard, Redo2, Undo2, GitBranch, Heading, NotebookPen, Share2, StickyNote, Scale } from "lucide-react";
 import { useAtlas } from "./store";
 import { Dialog } from "./Dialog";
 import { useUi } from "./ui";
 import { redo, undo, useHistory } from "./history";
 import { keyFor, useShortcuts, type ShortcutId } from "./shortcuts";
 import { NoteCard } from "./nodes/NoteNode";
+import { DistinctionCard } from "./nodes/DistinctionNode";
 import { ScratchCard } from "./nodes/ScratchNode";
 import { DiagramCard } from "./nodes/DiagramNode";
 import { LabelCard } from "./nodes/LabelNode";
@@ -25,6 +26,7 @@ import type { AtlasNode, NodeKind } from "./types";
 
 const nodeTypes = {
   note: NoteCard,
+  distinction: DistinctionCard,
   scratch: ScratchCard,
   diagram: DiagramCard,
   label: LabelCard,
@@ -38,6 +40,7 @@ const edgeDefaults = {
 
 const TOOLS: { kind: NodeKind; label: string; icon: typeof NotebookPen }[] = [
   { kind: "note", label: "Note", icon: NotebookPen },
+  { kind: "distinction", label: "X vs Y", icon: Scale },
   { kind: "scratch", label: "Scratch", icon: StickyNote },
   { kind: "diagram", label: "Diagram", icon: Share2 },
   { kind: "board", label: "Sub-board", icon: GitBranch },

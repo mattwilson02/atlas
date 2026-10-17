@@ -1,4 +1,4 @@
-import { emptyNote, type NoteData } from "./types";
+import { distinctionTitle, emptyNote, type DistinctionData, type NoteData } from "./types";
 
 const stripMentions = (s: string) => s.replace(/<mention-page[^>]*\/>/g, "");
 const clean = (s: string) => stripMentions(s).replace(/\*\*/g, "").trim();
@@ -83,5 +83,16 @@ export function noteToMarkdown(n: NoteData): string {
   out.push("", "## Real examples", n.example);
   out.push("", "## Recall questions", n.recall);
   out.push("", "## Still unclear", n.unclear);
+  return out.join("\n") + "\n";
+}
+
+/** A distinction card as markdown, ready to paste. */
+export function distinctionToMarkdown(d: DistinctionData): string {
+  const out = [`# ${distinctionTitle(d)}`, "", "## The question that separates them", d.question];
+  out.push("", `## ${d.xName.trim() || "X"}`, d.x);
+  out.push("", `## ${d.yName.trim() || "Y"}`, d.y);
+  out.push("", "## Why both exist", d.why);
+  out.push("", "## Where you see both together", d.together);
+  out.push("", "## Recall question", d.recall);
   return out.join("\n") + "\n";
 }
