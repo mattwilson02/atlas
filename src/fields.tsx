@@ -9,12 +9,14 @@ export function Grow({
   min = 2,
   autoFocus,
   onBlur,
+  onFocus,
 }: {
   value: string;
   onChange: (v: string) => void;
   min?: number;
   autoFocus?: boolean;
   onBlur?: () => void;
+  onFocus?: () => void;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const fit = () => {
@@ -54,6 +56,7 @@ export function Grow({
       value={value}
       placeholder="Markdown supported"
       onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
       onBlur={onBlur}
       onKeyDown={(e) => e.key === "Escape" && e.currentTarget.blur()}
     />
@@ -78,7 +81,7 @@ export function Field({ label, value, onChange, rows = 2 }: { label: string; val
       </button>
       {!shut &&
         (editing || !value.trim() ? (
-          <Grow value={value} onChange={onChange} min={rows} autoFocus={editing} onBlur={() => setEditing(false)} />
+          <Grow value={value} onChange={onChange} min={rows} autoFocus={editing} onFocus={() => setEditing(true)} onBlur={() => setEditing(false)} />
         ) : (
           <div
             className="md-preview"

@@ -99,7 +99,7 @@ export const keyFor = (id: ShortcutId) => {
 
 const typingIn = (t: EventTarget | null) => {
   const el = t as HTMLElement | null;
-  return !!el && (["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName) || el.isContentEditable);
+  return !!el && (["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName) || el.isContentEditable || el.getAttribute?.("role") === "textbox");
 };
 
 type Ctx = {
