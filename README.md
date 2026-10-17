@@ -56,30 +56,6 @@ so edits made while the service was down are pushed up when it returns. Last wri
 Boards are stored per browser *and per address*: `localhost:5181` has its own boards, separate from the dev server
 on `:5180`. Use Export / Import to move boards across.
 
-## Read-only MCP server (fact-check and critique your notes)
-
-`mcp/` is a small MCP server that lets an assistant **read** your notes so it can check and critique them. It returns
-your words verbatim and generates nothing. It has no write path at all: the only file call is `readFile`, every tool is
-marked read-only, and its instructions tell the client to critique and never rewrite.
-
-```bash
-cd mcp && pnpm install
-pnpm smoke      # 17 checks against a throwaway fixture, including "the data file is byte-for-byte unchanged"
-claude mcp add --scope user atlas-notes -- node ~/development/atlas/mcp/server.mjs
-```
-
-| Tool | Returns |
-|---|---|
-| `list_resources`, `list_boards` | what exists, with counts |
-| `list_notes` | one line per note; filter by `max_confidence`, `has_unclear`, resource, board. Pick what to check first |
-| `get_note` | one note, every field verbatim, plus its links and your link labels |
-| `get_board` | a whole board verbatim, for checking notes against each other |
-| `get_diagram` | Mermaid source and, for visual flowcharts, steps and connections in words |
-| `search` | case-insensitive across notes, scratch, labels, diagrams |
-
-It reads `~/.local/share/atlas-data/atlas.json` (override with `ATLAS_DATA`), the copy the Atlas service saves as you edit,
-so it sees your notes as of your last save. Try: *"fact-check my OLTP note"*, *"which of my notes is weakest and why"*.
-
 ## Not built yet
 
 Sync between devices, recall/quiz mode over the Recall questions, search, auto-layout, image nodes, Notion sync, cloud persistence.
